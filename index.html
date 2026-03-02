@@ -75,24 +75,51 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
 
-        /* ( CUSTOM_CSS_EMBED_POINT ) */
+        .holder-row:nth-child(even) { background: rgba(255,255,255,0.02); }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- ( MODAL_OVERLAY_POINT ) -->
     <div id="simOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center transition-opacity duration-500 hidden">
         <div class="glass-card p-8 rounded-[2rem] max-w-md text-center">
             <h3 class="text-2xl font-black text-white mb-4 uppercase tracking-tighter">Simulation Mode</h3>
-            <p class="text-slate-400 text-sm mb-6 leading-relaxed">No API Key detected. Entering Simulation Mode to demonstrate Synergy Sphere UI and Alpha Scoring logic.</p>
+            <p class="text-slate-400 text-sm mb-6 leading-relaxed">No API Key detected. Entering Simulation Mode to demonstrate V2 Holder Data and Alpha Scoring logic.</p>
             <button onclick="closeOverlay()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all">ENTER TERMINAL</button>
         </div>
     </div>
 
-    <!-- ( NOTIFICATION_TOAST_POINT ) -->
+    <!-- HOLDER ANALYSIS MODAL -->
+    <div id="holderModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center transition-all opacity-0 pointer-events-none p-4">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] overflow-hidden border-indigo-500/30">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-indigo-500/10">
+                <div>
+                    <h3 class="text-xl font-black text-white tracking-tighter uppercase" id="modalTokenName">Token Holders</h3>
+                    <p class="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">V2 API • Top 10 Supply Distribution</p>
+                </div>
+                <button onclick="closeHolderModal()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 text-white font-bold">×</button>
+            </div>
+            <div class="p-6">
+                <div id="holderLoading" class="hidden py-12 text-center text-indigo-400 font-bold animate-pulse uppercase tracking-widest text-xs">Querying Base (Chain 8453)...</div>
+                <div id="holderError" class="hidden py-8 text-center text-red-400 text-sm italic">Failed to fetch holder data. Etherscan/Basescan PRO V2 key required for this endpoint.</div>
+                <div id="holderContent" class="overflow-hidden rounded-2xl border border-white/5">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-white/5 text-[10px] uppercase text-slate-500 font-black">
+                            <tr>
+                                <th class="p-4">Rank</th>
+                                <th class="p-4">Address</th>
+                                <th class="p-4 text-right">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holderList" class="mono text-xs text-slate-300">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-7xl mx-auto">
-        <!-- ( NAVBAR_EMBED_POINT ) -->
         <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
             <div class="flex items-center gap-4">
                 <div class="relative group">
@@ -112,7 +139,7 @@
 
             <div class="flex items-center gap-3 w-full lg:w-auto">
                 <div class="relative flex-1 lg:w-72">
-                    <input type="password" id="apiKey" placeholder="Enter Basescan API Key" 
+                    <input type="password" id="apiKey" placeholder="Paste V2 API Key Here" 
                            class="w-full bg-slate-900/80 border border-slate-800 px-5 py-3.5 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600">
                 </div>
                 <button onclick="toggleRadar()" id="actionBtn" 
@@ -123,15 +150,12 @@
             </div>
         </header>
 
-        <!-- ( MAIN_GRID_EMBED_POINT ) -->
         <div class="grid grid-cols-12 gap-8">
-            
-            <!-- LEFT: MOMENTUM SIGNALS -->
             <aside class="col-span-12 lg:col-span-4 space-y-6">
                 <div class="glass-card p-6 rounded-[2.5rem] border-indigo-500/20 border-t-4 relative overflow-hidden">
                     <div class="flex justify-between items-center mb-8 relative z-10">
                         <h2 class="text-xs font-black text-indigo-300 uppercase tracking-widest">Momentum Clusters</h2>
-                        <div class="px-2 py-1 rounded-md bg-indigo-500/10 text-[9px] text-indigo-400 font-bold border border-indigo-500/20">ALPHA v3.1</div>
+                        <div class="px-2 py-1 rounded-md bg-indigo-500/10 text-[9px] text-indigo-400 font-bold border border-indigo-500/20">V2 INTEGRATED</div>
                     </div>
 
                     <div id="signalContainer" class="space-y-4 relative z-10">
@@ -141,13 +165,9 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- ( SIDEBAR_BOTTOM_EMBED_POINT ) -->
             </aside>
 
-            <!-- RIGHT: ANALYTICS & FEED -->
             <main class="col-span-12 lg:col-span-8 space-y-8">
-                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="glass-card p-6 rounded-3xl border-l-2 border-indigo-500">
                         <p class="text-[10px] text-slate-500 uppercase font-black mb-1">Total Packets</p>
@@ -167,8 +187,6 @@
                     </div>
                 </div>
 
-                <!-- ( CHART_AREA_EMBED_POINT ) -->
-
                 <div class="glass-card rounded-[2.5rem] overflow-hidden">
                     <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                         <h3 class="text-xs font-black text-slate-400 tracking-widest uppercase">Global Whale Stream</h3>
@@ -187,181 +205,48 @@
                                     <th class="p-6 text-right">Verification</th>
                                 </tr>
                             </thead>
-                            <tbody id="liveFeed" class="divide-y divide-white/5">
-                                <!-- JS Injection -->
-                            </tbody>
+                            <tbody id="liveFeed" class="divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
             </main>
         </div>
-        
-        <!-- ( FOOTER_EMBED_POINT ) -->
-        <footer class="mt-12 text-center text-slate-800 text-[10px] font-bold tracking-[0.3em] uppercase">
-            Synergy Spheres Protocol • Security Level 4
-        </footer>
     </div>
 
     <script>
         let isScanning = false;
         let radarInterval = null;
         let isSimulation = false;
+        let currentApiKey = "";
 
         function closeOverlay() {
             document.getElementById('simOverlay').classList.add('hidden');
             runSimulation();
         }
 
-        function toggleRadar() {
-            const key = document.getElementById('apiKey').value;
-            if(!key) {
-                document.getElementById('simOverlay').classList.remove('hidden');
-                return;
-            }
+        function closeHolderModal() {
+            const modal = document.getElementById('holderModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
 
-            const btn = document.getElementById('actionBtn');
-            const spinner = document.getElementById('loadingSpinner');
-            const btnText = document.getElementById('btnText');
-            const status = document.getElementById('nodeStatus');
-            const pulse = document.getElementById('statusPulse');
+        async function inspectHolders(symbol, contractAddress) {
+            const modal = document.getElementById('holderModal');
+            const list = document.getElementById('holderList');
+            const loading = document.getElementById('holderLoading');
+            const content = document.getElementById('holderContent');
+            const error = document.getElementById('holderError');
+
+            document.getElementById('modalTokenName').innerText = `${symbol} Holders`;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
             
-            if(!isScanning) {
-                isScanning = true;
-                isSimulation = false;
-                btnText.innerText = "HALTING...";
-                spinner.classList.remove('hidden');
-                btn.classList.replace('bg-indigo-600', 'bg-red-500/80');
-                status.innerText = "BASE MAINNET SYNCED";
-                status.classList.add('text-indigo-400');
-                pulse.style.background = "#10b981";
-                startScanning(key);
-                setTimeout(() => { btnText.innerText = "HALT SCAN"; spinner.classList.add('hidden'); }, 800);
-            } else {
-                isScanning = false;
-                btnText.innerText = "RESUMING...";
-                spinner.classList.remove('hidden');
-                btn.classList.replace('bg-red-500/80', 'bg-indigo-600');
-                status.innerText = "Node Standby";
-                status.classList.remove('text-indigo-400');
-                pulse.style.background = "#475569";
-                clearInterval(radarInterval);
-                setTimeout(() => { btnText.innerText = "INITIATE SCAN"; spinner.classList.add('hidden'); }, 800);
-            }
-        }
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            error.classList.add('hidden');
+            list.innerHTML = '';
 
-        function startScanning(key) {
-            fetchData(key);
-            radarInterval = setInterval(() => fetchData(key), 12000);
-        }
-
-        async function fetchData(apiKey) {
-            const startTime = performance.now();
-            const endpoint = `https://api.basescan.org/api?module=account&action=tokentx&address=0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24&page=1&offset=80&sort=desc&apikey=${apiKey}`;
-
-            try {
-                const response = await fetch(endpoint);
-                const data = await response.json();
-                if(data.status === "1") {
-                    document.getElementById('latency').innerText = Math.round(performance.now() - startTime) + "ms";
-                    document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
-                    processTransactions(data.result);
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        function processTransactions(txs) {
-            const feed = document.getElementById('liveFeed');
-            const signals = document.getElementById('signalContainer');
-            feed.innerHTML = '';
-            document.getElementById('txCount').innerText = txs.length;
-
-            let tokenMap = {};
-            let currentWhales = 0;
-
-            txs.forEach(tx => {
-                const value = parseFloat(tx.value) / Math.pow(10, tx.tokenDecimal);
-                const symbol = tx.tokenSymbol;
-                const time = tx.timeStamp ? new Date(tx.timeStamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : 'LIVE';
-
-                if (!tokenMap[symbol]) tokenMap[symbol] = { count: 0, volume: 0, addr: tx.contractAddress, whales: 0 };
-                tokenMap[symbol].count++;
-                tokenMap[symbol].volume += value;
-
-                if(value >= 0.5) {
-                    currentWhales++;
-                    tokenMap[symbol].whales++;
-                    feed.innerHTML += `
-                        <tr class="hover:bg-indigo-500/5 transition-all group border-b border-white/5">
-                            <td class="p-6 text-[10px] text-slate-500 mono font-bold">${time}</td>
-                            <td class="p-6">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-extrabold text-white tracking-tight">${symbol}</span>
-                                    ${value > 2 ? '<span class="text-[8px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20">ELITE</span>' : ''}
-                                </div>
-                            </td>
-                            <td class="p-6 font-black ${value > 1 ? 'text-amber-500' : 'text-emerald-400'} mono">${value.toFixed(3)}</td>
-                            <td class="p-6 text-right">
-                                <a href="https://basescan.org/tx/${tx.hash}" target="_blank" class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 hover:bg-indigo-600 transition-all text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white">Track</a>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-
-            document.getElementById('whaleCount').innerText = currentWhales;
-            document.getElementById('bsRatio').innerText = (Math.random() * 4 + 1).toFixed(1);
-
-            const sortedSignals = Object.entries(tokenMap)
-                .map(([sym, stats]) => {
-                    const score = ((stats.count * 12) + (stats.volume * 5) + (stats.whales * 25));
-                    return { sym, score, ...stats };
-                })
-                .sort((a, b) => b.score - a.score).slice(0, 4);
-
-            signals.innerHTML = sortedSignals.map(item => `
-                <div class="glass-card p-6 rounded-[2rem] border-white/5 relative overflow-hidden group cursor-pointer" onclick="window.open('https://dexscreener.com/base/${item.addr}')">
-                    <div class="sphere-glow ${item.score > 90 ? 'parabolic-glow' : ''}"></div>
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <h4 class="text-2xl font-black italic text-indigo-400 tracking-tighter group-hover:text-white transition-colors">${item.sym}</h4>
-                            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Synergy Core</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-black mono mb-1">${item.score > 90 ? 'PARABOLIC' : 'SCANNING'}</div>
-                            <span class="text-xl font-black text-white mono">${Math.floor(item.score)}</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 mb-6 relative z-10">
-                        <div class="bg-black/40 border border-white/5 rounded-2xl p-3"><p class="text-[8px] text-slate-500 uppercase font-black mb-1">Frequency</p><p class="text-sm font-black text-white">${item.count}Hz</p></div>
-                        <div class="bg-black/40 border border-white/5 rounded-2xl p-3"><p class="text-[8px] text-slate-500 uppercase font-black mb-1">Conviction</p><p class="text-sm font-black text-white">${item.whales}</p></div>
-                    </div>
-                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden relative z-10">
-                        <div class="h-full bg-gradient-to-r ${item.score > 90 ? 'from-amber-500 to-orange-500' : 'from-indigo-600 to-purple-600'} transition-all duration-1000" style="width: ${Math.min(item.score, 100)}%"></div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function runSimulation() {
-            isSimulation = true;
-            document.getElementById('nodeStatus').innerText = "SIMULATION ACTIVE";
-            const mockTokens = ["BRETT", "TOSHI", "KEYCAT", "DEGEN", "MIGGLES", "AERO"];
-            const generateMock = () => {
-                let txs = [];
-                for(let i=0; i<50; i++) {
-                    txs.push({
-                        tokenSymbol: mockTokens[Math.floor(Math.random()*mockTokens.length)],
-                        value: (Math.random() * 5 * Math.pow(10, 18)).toString(),
-                        tokenDecimal: 18,
-                        contractAddress: "0xMock",
-                        hash: "0xMockHash"
-                    });
-                }
-                processTransactions(txs);
-            };
-            generateMock();
-            radarInterval = setInterval(generateMock, 5000);
-        }
-    </script>
-</body>
-</html>
+            if(isSimulation) {
+                setTimeout(() => {
+                    loading.classList.add('hidden');
+                    content.classList.remove('hidden');
+                    for(let i=1; i<=10; i++) {
+                        list.innerHTML += `<tr class="holder-row"><td class="p-4 text-indigo-400 font-black">#${i}</td><td class="p-4">0x
